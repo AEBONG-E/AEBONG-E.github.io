@@ -361,6 +361,9 @@
       var section = document.getElementById(cmd.target);
       var t = section ? typerFor(section) : null;
       var willType = t && t.state() !== 'done';
+      // Clear first so goTo() does not treat the submitted command as "still typing".
+      input.value = '';
+      closeList();
       goTo(cmd.target);
       say(cmd.name + ' -> ' + cmd.desc + (willType ? '  (클릭 또는 Esc 로 건너뛰기)' : ''));
     } else if (cmd.action === 'theme') {

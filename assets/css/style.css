@@ -752,6 +752,11 @@ html.tw-wait main .turn,
     --accent-strong: #111;
     --after: #111;
     --chip-bg: #fff;
+    color-scheme: light;
+  }
+
+  html {
+    background: #fff;
   }
 
   body {
@@ -815,6 +820,16 @@ html.tw-wait main .turn,
     padding-left: 0;
     font-size: 13pt;
     border-bottom: 1px solid #999;
+    break-after: avoid;
+  }
+
+  .sub,
+  .entry-title {
+    break-after: avoid;
+  }
+
+  #contact {
+    break-inside: avoid;
   }
 
   .tool::before,
@@ -858,11 +873,11 @@ html.tw-wait main .turn,
     padding: 0;
   }
 
-  .chips li + li::before {
-    content: ", ";
+  .chips li:not(:last-child)::after {
+    content: ",";
   }
 
   .chips {
-    gap: 0;
+    gap: 0 0.45em;
   }
 }
