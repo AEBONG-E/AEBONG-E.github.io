@@ -1,6 +1,6 @@
 /*
  * Progressive enhancement only: every section is readable without this file.
- * Adds the slash-command input, theme toggle, print button and the typing
+ * Adds the slash-command input, theme/style toggles, print button and the typing
  * effects (skipped when prefers-reduced-motion is set).
  *
  * Sections start hidden and are typed in once, either when they scroll into
@@ -16,6 +16,7 @@
     { name: '/skills', desc: '기술 스택', target: 'skills' },
     { name: '/contact', desc: '연락처', target: 'contact' },
     { name: '/theme', desc: '라이트/다크 테마 전환', action: 'theme' },
+    { name: '/style', desc: 'Claude Code/Codex CLI 스타일 전환', action: 'cli' },
     { name: '/print', desc: '인쇄 / PDF로 저장', action: 'print' },
     { name: '/help', desc: '명령어 목록 보기', action: 'help' }
   ];
@@ -43,13 +44,36 @@
     var labels = document.querySelectorAll('.theme-label');
     for (var i = 0; i < labels.length; i++) labels[i].textContent = theme;
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'light' ? '#faf9f5' : '#141413');
+    if (meta) meta.setAttribute('content', currentCli() === 'codex'
+      ? (theme === 'light' ? '#ffffff' : '#0d0f12')
+      : (theme === 'light' ? '#faf9f5' : '#141413'));
   }
 
   function toggleTheme() {
     var next = currentTheme() === 'light' ? 'dark' : 'light';
     root.setAttribute('data-theme', next);
     try { localStorage.setItem('theme', next); } catch (e) { /* ignore */ }
+    syncThemeUi();
+    return next;
+  }
+
+  function currentCli() {
+    return root.getAttribute('data-cli') === 'codex' ? 'codex' : 'claude';
+  }
+
+  function syncCliUi() {
+    var cli = currentCli();
+    var label = document.querySelector('.cli-label');
+    var button = document.querySelector('.cli-toggle');
+    if (label) label.textContent = cli;
+    if (button) button.setAttribute('aria-pressed', cli === 'codex' ? 'true' : 'false');
+  }
+
+  function toggleCli() {
+    var next = currentCli() === 'claude' ? 'codex' : 'claude';
+    root.setAttribute('data-cli', next);
+    try { localStorage.setItem('cliStyle', next); } catch (e) { /* ignore */ }
+    syncCliUi();
     syncThemeUi();
     return next;
   }
@@ -368,6 +392,8 @@
       say(cmd.name + ' -> ' + cmd.desc + (willType ? '  (클릭 또는 Esc 로 건너뛰기)' : ''));
     } else if (cmd.action === 'theme') {
       say('theme: ' + toggleTheme());
+    } else if (cmd.action === 'cli') {
+      say('style: ' + toggleCli());
     } else if (cmd.action === 'print') {
       say('인쇄 대화상자를 엽니다.');
       window.print();
@@ -508,6 +534,7 @@
       if (!el) return;
       var action = el.getAttribute('data-action');
       if (action === 'theme') say('theme: ' + toggleTheme());
+      if (action === 'cli') say('style: ' + toggleCli());
       if (action === 'print') window.print();
     });
   }
@@ -567,6 +594,7 @@
   }
 
   syncThemeUi();
+  syncCliUi();
   initPrompt();
   initButtons();
   initSectionTyping(initHeroTyping());

@@ -11,6 +11,7 @@
 - 슬래시 명령어 내비게이션 (`/about`, `/experience`, `/projects`, `/skills`, `/contact`)
 - 하단 입력창에서 명령어 직접 입력 (`/` 키로 포커스, Tab 자동완성)
 - 라이트/다크 테마 전환
+- 하단 버튼 또는 `/style` 명령으로 Claude Code/Codex CLI 스타일 전환 (선택 유지)
 - JavaScript 없이도 모든 내용 표시, `prefers-reduced-motion` 지원
 - 인쇄 시 이력서 형태로 출력
 
@@ -20,8 +21,8 @@
 .
 |-- index.html            # 전체 콘텐츠
 |-- assets/
-|   |-- css/style.css     # 테마, 레이아웃, 인쇄 스타일
-|   |-- js/main.js        # 명령어 입력, 테마 전환 (점진적 향상)
+|   |-- css/style.css     # 테마/CLI 스타일, 레이아웃, 인쇄 스타일
+|   |-- js/main.js        # 명령어 입력, 테마/CLI 스타일 전환 (점진적 향상)
 |   `-- img/              # favicon, OG 이미지
 `-- .nojekyll             # Jekyll 빌드 비활성화
 ```

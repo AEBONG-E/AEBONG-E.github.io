@@ -1,7 +1,7 @@
 /* ==========================================================================
    Terminal-style portfolio
    - Dark theme is the default; light theme via [data-theme="light"].
-   - All content is plain HTML; JS only adds the command input and theme toggle.
+   - All content is plain HTML; JS adds the command input and style toggles.
    ========================================================================== */
 
 :root,
@@ -36,6 +36,40 @@
   --chip-bg: #ebe8de;
   --focus: #a84a28;
   --cmd: #4651c4;
+  color-scheme: light;
+}
+
+:root[data-cli="codex"] {
+  --bg: #0d0f12;
+  --bg-elev: #1d2127;
+  --fg: #e8ebef;
+  --muted: #a4adb8;
+  --dim: #89939e;
+  --border: #3b444f;
+  --accent: #72a7ff;
+  --accent-strong: #9bc3ff;
+  --ok: #76b1ff;
+  --after: #9ed6b4;
+  --chip-bg: #202832;
+  --focus: #9bc3ff;
+  --cmd: #a6c8ff;
+  color-scheme: dark;
+}
+
+:root[data-cli="codex"][data-theme="light"] {
+  --bg: #ffffff;
+  --bg-elev: #f0f3f7;
+  --fg: #1b2530;
+  --muted: #526170;
+  --dim: #687786;
+  --border: #c4ced8;
+  --accent: #245fae;
+  --accent-strong: #164e96;
+  --ok: #245fae;
+  --after: #246e49;
+  --chip-bg: #edf3fa;
+  --focus: #245fae;
+  --cmd: #245fae;
   color-scheme: light;
 }
 
@@ -666,8 +700,14 @@ html.tw-wait main .turn,
   font-weight: 600;
 }
 
-.theme-toggle {
+.status-actions {
+  display: flex;
+  gap: 8px;
   margin-left: auto;
+}
+
+.theme-toggle,
+.cli-toggle {
   font: inherit;
   color: var(--muted);
   background: transparent;
@@ -677,9 +717,46 @@ html.tw-wait main .turn,
   cursor: pointer;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.cli-toggle:hover {
   color: var(--fg);
   border-color: var(--accent);
+}
+
+/* Codex CLI-inspired chrome; portfolio content and print layout stay shared. */
+:root[data-cli="codex"] .welcome {
+  border-color: var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: 4px;
+}
+
+:root[data-cli="codex"] .prompt {
+  border-left: 2px solid var(--accent);
+  border-radius: 0 4px 4px 0;
+}
+
+:root[data-cli="codex"] .prompt::before {
+  content: "› ";
+  color: var(--accent);
+}
+
+:root[data-cli="codex"] .prompt-box::before {
+  background: var(--bg-elev);
+  border-radius: 4px;
+  z-index: -1;
+}
+
+:root[data-cli="codex"] .prompt-box {
+  isolation: isolate;
+}
+
+:root[data-cli="codex"] .prompt-caret {
+  font-size: 0;
+}
+
+:root[data-cli="codex"] .prompt-caret::before {
+  content: "›";
+  font-size: 16px;
 }
 
 /* --- responsive ---------------------------------------------------------- */
@@ -741,7 +818,9 @@ html.tw-wait main .turn,
 
   :root,
   :root[data-theme="dark"],
-  :root[data-theme="light"] {
+  :root[data-theme="light"],
+  :root[data-cli="codex"],
+  :root[data-cli="codex"][data-theme="light"] {
     --bg: #fff;
     --bg-elev: #fff;
     --fg: #111;
@@ -792,6 +871,12 @@ html.tw-wait main .turn,
     border-bottom: 2px solid #111;
     border-radius: 0;
     padding: 0 0 10px;
+  }
+
+  :root[data-cli="codex"] .welcome {
+    border: 0;
+    border-bottom: 2px solid #111;
+    border-radius: 0;
   }
 
   .welcome-greet {

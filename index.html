@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="dark" data-cli="claude">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,6 +36,10 @@
         var saved = localStorage.getItem('theme');
         if (saved === 'light' || saved === 'dark') {
           document.documentElement.setAttribute('data-theme', saved);
+        }
+        var savedCli = localStorage.getItem('cliStyle');
+        if (savedCli === 'claude' || savedCli === 'codex') {
+          document.documentElement.setAttribute('data-cli', savedCli);
         }
       } catch (e) { /* storage unavailable: keep default theme */ }
       var html = document.documentElement;
@@ -368,7 +372,10 @@
       <span class="status-item status-name">임성훈</span>
       <span class="status-item">Java/Spring Backend</span>
       <span class="status-item">Daegu, KR</span>
-      <button type="button" class="status-item theme-toggle js-only" data-action="theme" aria-label="테마 전환">theme: <span class="theme-label">dark</span></button>
+      <span class="status-actions js-only">
+        <button type="button" class="status-item theme-toggle" data-action="theme" aria-label="테마 전환">theme: <span class="theme-label">dark</span></button>
+        <button type="button" class="status-item cli-toggle" data-action="cli" aria-label="Codex CLI 스타일" aria-pressed="false">style: <span class="cli-label">claude</span></button>
+      </span>
     </div>
   </div>
 
