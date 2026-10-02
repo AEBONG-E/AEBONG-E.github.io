@@ -1,0 +1,868 @@
+/* ==========================================================================
+   Terminal-style portfolio
+   - Dark theme is the default; light theme via [data-theme="light"].
+   - All content is plain HTML; JS only adds the command input and theme toggle.
+   ========================================================================== */
+
+:root,
+:root[data-theme="dark"] {
+  --bg: #141413;
+  --bg-elev: #1f1e1c;
+  --fg: #ebe9e4;
+  --muted: #a3a19b;
+  --dim: #8a8882;
+  --border: #4a4843;
+  --accent: #e07a55;
+  --accent-strong: #f0956f;
+  --ok: #7fc58f;
+  --after: #8fd19e;
+  --chip-bg: #262522;
+  --focus: #f0956f;
+  --cmd: #b1b9f9;      /* slash-command color, as in the Claude Code CLI */
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #faf9f5;
+  --bg-elev: #f0eee6;
+  --fg: #1f1e1d;
+  --muted: #5c5a55;
+  --dim: #6b6963;
+  --border: #c9c6bc;
+  --accent: #a84a28;
+  --accent-strong: #8f3d1f;
+  --ok: #2e7a40;
+  --after: #23683a;
+  --chip-bg: #ebe8de;
+  --focus: #a84a28;
+  --cmd: #4651c4;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "JetBrains Mono", "D2Coding", "D2 Coding", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", monospace;
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+a {
+  color: var(--accent-strong);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+h1, h2, h3 {
+  line-height: 1.4;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -48px;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: var(--bg);
+  z-index: 10;
+}
+
+.skip-link:focus {
+  top: 8px;
+}
+
+html:not(.js) .js-only {
+  display: none !important;
+}
+
+.print-only {
+  display: none;
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.dim {
+  color: var(--dim);
+  font-weight: 400;
+}
+
+/* --- layout -------------------------------------------------------------- */
+
+.terminal {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 24px 16px 32px;
+}
+
+/* --- welcome box --------------------------------------------------------- */
+
+.welcome {
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+.welcome p {
+  margin: 0;
+}
+
+.welcome-greet {
+  font-weight: 600;
+}
+
+.welcome-name {
+  margin: 14px 0 2px;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.welcome-role {
+  color: var(--fg);
+  min-height: 1.7em;
+}
+
+.welcome-meta {
+  margin-top: 12px !important;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.typewrite.is-typing::after {
+  content: "";
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* section typing: not-yet-typed parts keep their space but stay invisible */
+html.tw-wait main .turn,
+.tw-pending {
+  visibility: hidden;
+}
+
+.tw-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+}
+
+/* --- slash command nav --------------------------------------------------- */
+
+.commands {
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+.commands-title {
+  margin: 0 0 6px;
+}
+
+.commands ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.commands a {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+  padding: 3px 8px;
+  margin: 0 -8px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.commands a:hover,
+.commands a:focus-visible {
+  background: var(--bg-elev);
+}
+
+.cmd {
+  color: var(--cmd);
+  min-width: 9.5em;
+  font-weight: 600;
+}
+
+.cmd-desc {
+  color: var(--muted);
+}
+
+/* --- conversation turns -------------------------------------------------- */
+
+.turn {
+  margin-top: 36px;
+  scroll-margin-top: 16px;
+}
+
+.prompt {
+  margin: 0 0 10px;
+  padding: 6px 10px;
+  background: var(--bg-elev);
+  border-radius: 4px;
+  color: var(--cmd);
+}
+
+.prompt::before {
+  content: "> ";
+  color: var(--muted);
+}
+
+.tool {
+  position: relative;
+  margin: 0;
+  padding-left: 1.3em;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* tool-call bullet, drawn with CSS instead of a glyph */
+.tool::before {
+  content: "";
+  position: absolute;
+  left: 0.15em;
+  top: 0.62em;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--ok);
+}
+
+.tool:focus {
+  outline: none;
+}
+
+.tool:focus-visible {
+  outline: 2px solid var(--focus);
+}
+
+.tool-call {
+  color: var(--fg);
+}
+
+.tool-title {
+  color: var(--accent-strong);
+  margin-left: 0.5em;
+}
+
+.tool-note {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.85rem;
+  margin-left: 0.5em;
+}
+
+/* tool result block with an L-shaped connector */
+.result {
+  position: relative;
+  margin: 6px 0 0 0.45em;
+  padding-left: 1.6em;
+}
+
+.result::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0.8em;
+  height: 0.9em;
+  border-left: 1px solid var(--dim);
+  border-bottom: 1px solid var(--dim);
+}
+
+.result > p {
+  margin: 0 0 0.9em;
+}
+
+.sub {
+  margin: 1.6em 0 0.5em;
+  font-size: 0.95rem;
+  color: var(--accent-strong);
+}
+
+.sub::before {
+  content: "## ";
+  color: var(--dim);
+}
+
+.list {
+  margin: 0.3em 0 0.8em;
+  padding-left: 1.4em;
+  list-style: none;
+}
+
+.list > li {
+  position: relative;
+  margin: 0.2em 0;
+}
+
+.list > li::before {
+  content: "-";
+  position: absolute;
+  left: -1.2em;
+  color: var(--dim);
+}
+
+.list .list {
+  margin: 0.2em 0;
+}
+
+/* --- entries (experience / projects) ------------------------------------ */
+
+.entry {
+  margin: 0 0 1.8em;
+  padding-bottom: 1.4em;
+  border-bottom: 1px dashed var(--border);
+}
+
+.entry:last-of-type {
+  border-bottom: 0;
+}
+
+.entry-title {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.entry-title .tool-call {
+  display: block;
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.entry-role {
+  display: inline-block;
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.entry-meta {
+  margin: 0 0 0.6em !important;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.stack {
+  color: var(--dim);
+  font-size: 0.85rem;
+}
+
+.stack::before {
+  content: "$ stack: ";
+  color: var(--accent);
+}
+
+/* --- metrics ------------------------------------------------------------- */
+
+.metric .before,
+.metrics .before {
+  color: var(--muted);
+}
+
+.metric .after,
+.metrics .after {
+  color: var(--after);
+  font-weight: 700;
+}
+
+.arrow {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.metrics {
+  margin: 0.4em 0 1em;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.metrics > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 16px;
+  padding: 8px 12px;
+}
+
+.metrics > div + div {
+  border-top: 1px solid var(--border);
+}
+
+.metrics dt {
+  font-weight: 600;
+}
+
+.metrics dd {
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* --- timeline (education) ----------------------------------------------- */
+
+.timeline {
+  list-style: none;
+  margin: 0 0 0.6em;
+  padding: 0;
+}
+
+.timeline > li {
+  margin-bottom: 0.8em;
+}
+
+.tl-head,
+.tl-sub {
+  margin: 0;
+}
+
+.tl-date {
+  color: var(--muted);
+  margin-right: 0.6em;
+}
+
+.tl-sub {
+  color: var(--muted);
+}
+
+/* --- skills / key-value -------------------------------------------------- */
+
+.skills,
+.kv {
+  margin: 0;
+}
+
+.skills > div,
+.kv > div {
+  display: grid;
+  grid-template-columns: 9.5em 1fr;
+  gap: 4px 12px;
+  padding: 4px 0;
+}
+
+.skills dt,
+.kv dt {
+  color: var(--accent-strong);
+}
+
+.skills dt::after,
+.kv dt::after {
+  content: ":";
+  color: var(--dim);
+}
+
+.skills dd,
+.kv dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chips li {
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--chip-bg);
+  font-size: 0.85rem;
+}
+
+/* --- buttons ------------------------------------------------------------- */
+
+.btn {
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg-elev);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.site-footer {
+  margin-top: 40px;
+  color: var(--dim);
+  font-size: 0.8rem;
+}
+
+/* --- bottom dock: prompt box + status bar -------------------------------- */
+
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.prompt-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 920px;
+  margin: 8px auto 0;
+  padding: 0 16px;
+}
+
+.prompt-box::before {
+  content: "";
+  position: absolute;
+  inset: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.prompt-box:focus-within::before {
+  border-color: var(--accent);
+}
+
+.prompt-caret {
+  padding-left: 12px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+#cmd-input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px 9px 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 16px; /* prevents iOS zoom on focus */
+}
+
+#cmd-input:focus {
+  outline: none;
+}
+
+#cmd-input::placeholder {
+  color: var(--dim);
+}
+
+.cmd-list {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(100% + 6px);
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.cmd-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+  padding: 3px 12px;
+  cursor: pointer;
+}
+
+.cmd-list li[aria-selected="true"] {
+  background: var(--chip-bg);
+}
+
+.cmd-list li[aria-selected="true"] .cmd,
+.cmd-list li[aria-selected="true"] .cmd-desc {
+  color: var(--cmd);
+}
+
+.cmd-output {
+  max-width: 920px;
+  margin: 4px auto 0;
+  padding: 0 28px;
+  min-height: 1.4em;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.statusbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 14px;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 4px 16px 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.status-name {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.theme-toggle {
+  margin-left: auto;
+  font: inherit;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
+/* --- responsive ---------------------------------------------------------- */
+
+@media (max-width: 560px) {
+  body {
+    font-size: 14px;
+  }
+
+  .welcome {
+    padding: 14px 14px;
+  }
+
+  .welcome-name {
+    font-size: 1.45rem;
+  }
+
+  .result {
+    margin-left: 0.2em;
+    padding-left: 1.2em;
+  }
+
+  .skills > div,
+  .kv > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .metrics dd {
+    white-space: normal;
+  }
+
+  .cmd {
+    min-width: 0;
+  }
+}
+
+/* --- reduced motion ------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* --- print: clean resume layout ----------------------------------------- */
+
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+
+  :root,
+  :root[data-theme="dark"],
+  :root[data-theme="light"] {
+    --bg: #fff;
+    --bg-elev: #fff;
+    --fg: #111;
+    --muted: #444;
+    --dim: #555;
+    --border: #bbb;
+    --accent: #111;
+    --accent-strong: #111;
+    --after: #111;
+    --chip-bg: #fff;
+  }
+
+  body {
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+
+  .skip-link,
+  .commands,
+  .prompt,
+  .dock,
+  .site-footer,
+  .js-only,
+  .screen-only,
+  .tool-call,
+  .stack::before,
+  .sub::before {
+    display: none !important;
+  }
+
+  .print-only {
+    display: inline;
+  }
+
+  .terminal {
+    max-width: none;
+    padding: 0;
+  }
+
+  .welcome {
+    border: 0;
+    border-bottom: 2px solid #111;
+    border-radius: 0;
+    padding: 0 0 10px;
+  }
+
+  .welcome-greet {
+    display: none;
+  }
+
+  .welcome-name {
+    margin-top: 0;
+  }
+
+  .typewrite::after,
+  .tw-cursor {
+    display: none !important;
+  }
+
+  html.tw-wait main .turn,
+  .tw-pending {
+    visibility: visible !important;
+  }
+
+  .turn {
+    margin-top: 18px;
+  }
+
+  .tool {
+    padding-left: 0;
+    font-size: 13pt;
+    border-bottom: 1px solid #999;
+  }
+
+  .tool::before,
+  .result::before {
+    display: none;
+  }
+
+  .tool-title {
+    margin-left: 0;
+  }
+
+  .result {
+    margin: 6px 0 0;
+    padding-left: 0;
+  }
+
+  .entry,
+  .metrics > div,
+  .timeline > li {
+    break-inside: avoid;
+  }
+
+  .entry {
+    margin-bottom: 1em;
+    padding-bottom: 0.8em;
+  }
+
+  a {
+    color: #111;
+    text-decoration: none;
+  }
+
+  .links a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    color: #444;
+    font-size: 9pt;
+  }
+
+  .chips li {
+    border: 0;
+    padding: 0;
+  }
+
+  .chips li + li::before {
+    content: ", ";
+  }
+
+  .chips {
+    gap: 0;
+  }
+}
