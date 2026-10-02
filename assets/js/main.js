@@ -45,7 +45,7 @@
     for (var i = 0; i < labels.length; i++) labels[i].textContent = theme;
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', currentCli() === 'codex'
-      ? (theme === 'light' ? '#ffffff' : '#0d0f12')
+      ? (theme === 'light' ? '#f7f8f9' : '#14181d')
       : (theme === 'light' ? '#faf9f5' : '#141413'));
   }
 
