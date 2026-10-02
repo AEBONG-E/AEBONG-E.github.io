@@ -72,9 +72,15 @@
   function toggleCli() {
     var next = currentCli() === 'claude' ? 'codex' : 'claude';
     root.setAttribute('data-cli', next);
-    try { localStorage.setItem('cliStyle', next); } catch (e) { /* ignore */ }
+    var saved = false;
+    try {
+      localStorage.setItem('cliStyle', next);
+      saved = true;
+    } catch (e) { /* ignore */ }
     syncCliUi();
     syncThemeUi();
+    // The typing controllers run once per page; reload to replay them in the selected style.
+    if (saved && animate) window.location.reload();
     return next;
   }
 
