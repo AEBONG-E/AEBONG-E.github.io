@@ -19,6 +19,7 @@
   --chip-bg: #262522;
   --focus: #f0956f;
   --cmd: #b1b9f9;      /* slash-command color, as in the Claude Code CLI */
+  --mascot: #e6704f;
   color-scheme: dark;
 }
 
@@ -36,6 +37,7 @@
   --chip-bg: #ebe8de;
   --focus: #a84a28;
   --cmd: #4651c4;
+  --mascot: #c95f3f;   /* darker so the graphic keeps 3:1 on the light background */
   color-scheme: light;
 }
 
@@ -151,7 +153,8 @@ html:not(.js) .js-only {
 }
 
 .codex-intro,
-.codex-mark {
+.codex-mark,
+.claude-mark {
   display: none;
 }
 
@@ -726,6 +729,43 @@ html.tw-wait main .turn,
 .cli-toggle:hover {
   color: var(--fg);
   border-color: var(--accent);
+}
+
+/* Claude style: pixel mascot on the left of the welcome text (screen only). */
+@media screen {
+  :root:not([data-cli="codex"]) .welcome {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 20px;
+    align-items: center;
+  }
+
+  :root:not([data-cli="codex"]) .welcome > * {
+    grid-column: 2;
+  }
+
+  :root:not([data-cli="codex"]) .claude-mark {
+    display: block;
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    width: 72px;
+    height: auto;
+    fill: var(--mascot);
+  }
+
+  .claude-mark-eye {
+    fill: var(--bg);
+  }
+}
+
+@media screen and (max-width: 560px) {
+  :root:not([data-cli="codex"]) .welcome {
+    column-gap: 12px;
+  }
+
+  :root:not([data-cli="codex"]) .claude-mark {
+    width: 48px;
+  }
 }
 
 /* Codex terminal appearance, scoped away from the print resume. */
